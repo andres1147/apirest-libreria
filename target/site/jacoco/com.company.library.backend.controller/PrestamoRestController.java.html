@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrestamoRestController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">apirest-libreria</a> &gt; <a href="index.source.html" class="el_package">com.company.library.backend.controller</a> &gt; <span class="el_source">PrestamoRestController.java</span></div><h1>PrestamoRestController.java</h1><pre class="source lang-java linenums">package com.company.library.backend.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.company.library.backend.model.Prestamo;
+import com.company.library.backend.response.PrestamoResponseRest;
+import com.company.library.backend.service.IPrestamoService;
+
+@RestController
+@RequestMapping(&quot;/v1&quot;)
+<span class="fc" id="L20">public class PrestamoRestController {</span>
+
+	@Autowired
+	private IPrestamoService service;
+	
+	@GetMapping(&quot;/prestamos&quot;)
+	public ResponseEntity&lt;PrestamoResponseRest&gt; consultaCat() {
+<span class="nc" id="L27">		ResponseEntity&lt;PrestamoResponseRest&gt; response = service.buscarPrestamos();</span>
+<span class="nc" id="L28">		return response;</span>
+	}
+	
+	@GetMapping(&quot;/prestamos/{id}&quot;)
+	public ResponseEntity&lt;PrestamoResponseRest&gt; consultaPorId(@PathVariable Long id) {
+<span class="nc" id="L33">		ResponseEntity&lt;PrestamoResponseRest&gt; response = service.buscarPorId(id);</span>
+<span class="nc" id="L34">		return response;</span>
+	}
+	
+	@PostMapping(&quot;/prestamos&quot;)
+	public ResponseEntity&lt;PrestamoResponseRest&gt; crear(@RequestBody Prestamo request) {
+<span class="nc" id="L39">		ResponseEntity&lt;PrestamoResponseRest&gt; response = service.crear(request);</span>
+<span class="nc" id="L40">		return response;</span>
+	}
+	
+	/*@PutMapping(&quot;/categorias/{id}&quot;)
+	public ResponseEntity&lt;CategoriaResponseRest&gt; actualizar(@RequestBody Categoria request, @PathVariable Long id) {
+		ResponseEntity&lt;CategoriaResponseRest&gt; response = service.actualizar(request, id);
+		return response;
+	}*/
+	
+	@DeleteMapping(&quot;/prestamos/{id}&quot;)
+	public ResponseEntity&lt;PrestamoResponseRest&gt; eliminar(@PathVariable Long id) {
+<span class="nc" id="L51">		ResponseEntity&lt;PrestamoResponseRest&gt; response = service.eliminar(id);</span>
+<span class="nc" id="L52">		return response;</span>
+	}
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

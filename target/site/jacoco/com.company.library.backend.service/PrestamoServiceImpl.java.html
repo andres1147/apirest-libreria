@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrestamoServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">apirest-libreria</a> &gt; <a href="index.source.html" class="el_package">com.company.library.backend.service</a> &gt; <span class="el_source">PrestamoServiceImpl.java</span></div><h1>PrestamoServiceImpl.java</h1><pre class="source lang-java linenums">package com.company.library.backend.service;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.company.library.backend.model.dao.IPrestamoDao;
+import com.company.library.backend.response.PrestamoResponseRest;
+
+import com.company.library.backend.model.Prestamo;
+
+@Service
+<span class="fc" id="L23">public class PrestamoServiceImpl implements IPrestamoService {</span>
+
+<span class="fc" id="L25">	private static final Logger log = LoggerFactory.getLogger(PrestamoServiceImpl.class);</span>
+
+	@Autowired
+	private IPrestamoDao prestamoDao;
+
+	@Override
+	@Transactional(readOnly = true)
+	public ResponseEntity&lt;PrestamoResponseRest&gt; buscarPrestamos() {
+
+<span class="nc" id="L34">		log.info(&quot;inicio metodo buscarCategorias&quot;);</span>
+
+<span class="nc" id="L36">		PrestamoResponseRest response = new PrestamoResponseRest();</span>
+
+		try {
+
+<span class="nc" id="L40">			List&lt;Prestamo&gt; prestamo = (List&lt;Prestamo&gt;) prestamoDao.findAll();</span>
+<span class="nc" id="L41">			response.getPrestamoResponse().setPrestamo(prestamo);</span>
+<span class="nc" id="L42">			response.setMetadata(&quot;Respuesta ok&quot;, &quot;00&quot;, &quot;Respuesta exitosa&quot;);</span>
+
+<span class="nc" id="L44">		} catch (Exception e) {</span>
+<span class="nc" id="L45">			response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Respuesta incorrecta&quot;);</span>
+<span class="nc" id="L46">			log.error(&quot;error al consultar prestamos&quot;, e.getMessage());</span>
+<span class="nc" id="L47">			e.getStackTrace();</span>
+<span class="nc" id="L48">			return new ResponseEntity&lt;PrestamoResponseRest&gt;(response, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+		}
+<span class="nc" id="L50">		return new ResponseEntity&lt;PrestamoResponseRest&gt;(response, HttpStatus.OK); // devuelve 200</span>
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ResponseEntity&lt;PrestamoResponseRest&gt; buscarPorId(Long id) {
+<span class="nc" id="L56">		log.info(&quot;inicio metodo buscarPorId&quot;);</span>
+
+<span class="nc" id="L58">		PrestamoResponseRest response = new PrestamoResponseRest();</span>
+
+<span class="nc" id="L60">		List&lt;Prestamo&gt; list = new ArrayList&lt;&gt;();</span>
+
+		try {
+
+<span class="nc" id="L64">			Optional&lt;Prestamo&gt; prestamo = prestamoDao.findById(id);</span>
+
+<span class="nc bnc" id="L66" title="All 2 branches missed.">			if (prestamo.isPresent()) {</span>
+<span class="nc" id="L67">				list.add(prestamo.get());</span>
+<span class="nc" id="L68">				response.getPrestamoResponse().setPrestamo(list);</span>
+<span class="nc" id="L69">			} else {</span>
+<span class="nc" id="L70">				log.error(&quot;Error en consultar prestamo&quot;);</span>
+<span class="nc" id="L71">				response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Prestamo no encontrado&quot;);</span>
+<span class="nc" id="L72">				return new ResponseEntity&lt;PrestamoResponseRest&gt;(response, HttpStatus.NOT_FOUND);</span>
+			}
+
+<span class="nc" id="L75">		} catch (Exception e) {</span>
+<span class="nc" id="L76">			log.error(&quot;Error en consultar prestamo&quot;);</span>
+<span class="nc" id="L77">			response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Error al consultar prestamo&quot;);</span>
+<span class="nc" id="L78">			return new ResponseEntity&lt;PrestamoResponseRest&gt;(response, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+		}
+
+<span class="nc" id="L81">		response.setMetadata(&quot;Respuesta ok&quot;, &quot;00&quot;, &quot;Respuesta exitosa&quot;);</span>
+<span class="nc" id="L82">		return new ResponseEntity&lt;PrestamoResponseRest&gt;(response, HttpStatus.OK); // devuelve 200</span>
+	}
+
+	@Override
+	@Transactional
+	public ResponseEntity&lt;PrestamoResponseRest&gt; crear(Prestamo prestamo) {
+<span class="nc" id="L88">		log.info(&quot;inicio metodo crear prestamo&quot;);</span>
+		
+<span class="nc" id="L90">		PrestamoResponseRest response = new PrestamoResponseRest();</span>
+<span class="nc" id="L91">		List&lt;Prestamo&gt; list = new ArrayList&lt;&gt;();</span>
+		
+		try {
+
+			//validarTipoUsuario(prestamo.getTipoUsuario());
+			
+<span class="nc bnc" id="L97" title="All 4 branches missed.">	        if (prestamo.getTipoUsuario() &lt; 1 || prestamo.getTipoUsuario() &gt; 3) {</span>
+<span class="nc" id="L98">	        	response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Tipo de usuario no permitido en la biblioteca&quot;);</span>
+<span class="nc" id="L99">	        	return new ResponseEntity&lt;PrestamoResponseRest&gt;(response, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+	        }
+			
+		    //verificarPrestamoExistente(prestamo.getIdentificacionUsuario(), prestamo.getTipoUsuario());
+		    
+<span class="nc bnc" id="L104" title="All 2 branches missed.">		    if (prestamo.getTipoUsuario() == 3) { // Usuario invitado</span>
+<span class="nc" id="L105">	            Optional&lt;Prestamo&gt; prestamoExistente = prestamoDao.findByIdentificacionUsuario(prestamo.getIdentificacionUsuario());</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">	            if (prestamoExistente.isPresent()) {</span>
+<span class="nc" id="L107">	            	response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;\&quot;El usuario con identificación \&quot; + identificacionUsuario + \&quot; ya tiene un libro prestado por lo cual no se le puede realizar otro préstamo\&quot;&quot;);</span>
+<span class="nc" id="L108">		        	return new ResponseEntity&lt;PrestamoResponseRest&gt;(response, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+	            }
+	        }
+		    
+<span class="nc" id="L112">		    prestamo.setFechaMaximaDevolucion(calcularFechaDevolucion(prestamo.getTipoUsuario()));</span>
+<span class="nc" id="L113">			Prestamo prestamoGuardado = prestamoDao.save(prestamo);</span>
+
+<span class="nc bnc" id="L115" title="All 2 branches missed.">			if (prestamoGuardado != null) {</span>
+<span class="nc" id="L116">				list.add(prestamoGuardado);</span>
+<span class="nc" id="L117">				response.getPrestamoResponse().setPrestamo(list);</span>
+<span class="nc" id="L118">			} else {</span>
+<span class="nc" id="L119">				log.error(&quot;Error en crear prestamo&quot;);</span>
+<span class="nc" id="L120">				response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Prestamo no guardado&quot;);</span>
+<span class="nc" id="L121">				return new ResponseEntity&lt;PrestamoResponseRest&gt;(response, HttpStatus.BAD_REQUEST);</span>
+			}
+
+<span class="nc" id="L124">		} catch (Exception e) {</span>
+<span class="nc" id="L125">			log.error(&quot;Error en crear prestamo&quot;);</span>
+<span class="nc" id="L126">			response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Error al crear prestamo&quot;);</span>
+<span class="nc" id="L127">			return new ResponseEntity&lt;PrestamoResponseRest&gt;(response, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+		}
+		
+<span class="nc" id="L130">		response.setMetadata(&quot;Respuesta ok&quot;, &quot;00&quot;, &quot;Prestamo creado&quot;);</span>
+<span class="nc" id="L131">		return new ResponseEntity&lt;PrestamoResponseRest&gt;(response, HttpStatus.OK); // devuelve 200</span>
+	}
+
+	/*@Override
+	@Transactional
+	public ResponseEntity&lt;CategoriaResponseRest&gt; actualizar(Categoria categoria, Long id) {
+		log.info(&quot;inicio metodo actualizar categoria&quot;);
+		CategoriaResponseRest response = new CategoriaResponseRest();
+		List&lt;Categoria&gt; list = new ArrayList&lt;&gt;();
+		
+		try {
+
+			Optional&lt;Categoria&gt; categoriaBuscada = categoriaDao.findById(id);
+
+			if (categoriaBuscada.isPresent()) {
+				categoriaBuscada.get().setNombre(categoria.getNombre());
+				categoriaBuscada.get().setDescripcion(categoria.getDescripcion());
+				
+				Categoria categoriaActualizar = categoriaDao.save(categoriaBuscada.get());
+				
+				if(categoriaActualizar != null) {
+					response.setMetadata(&quot;Respuesta ok&quot;, &quot;00&quot;, &quot;Categoria actualizada&quot;);
+					list.add(categoriaActualizar);
+					response.getCategoriaResponse().setCategoria(list);
+				} else {
+					log.error(&quot;Error en actualizar categoria&quot;);
+					response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Categoria no actualizada&quot;);
+					return new ResponseEntity&lt;CategoriaResponseRest&gt;(response, HttpStatus.BAD_REQUEST);
+				}
+			} else {
+				log.error(&quot;Error en actualizar categoria&quot;);
+				response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Categoria no actualizada&quot;);
+				return new ResponseEntity&lt;CategoriaResponseRest&gt;(response, HttpStatus.NOT_FOUND);
+			}
+
+		} catch (Exception e) {
+			log.error(&quot;Error en actualizar categoria&quot;);
+			response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Categoria no actualizada&quot;);
+			return new ResponseEntity&lt;CategoriaResponseRest&gt;(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		return new ResponseEntity&lt;CategoriaResponseRest&gt;(response, HttpStatus.OK); // devuelve 200
+	}*/
+
+	@Override
+	@Transactional
+	public ResponseEntity&lt;PrestamoResponseRest&gt; eliminar(Long id) {
+
+<span class="nc" id="L179">		log.info(&quot;inicio metodo eliminar categoria&quot;);</span>
+		
+<span class="nc" id="L181">		PrestamoResponseRest response = new PrestamoResponseRest();</span>
+		
+		try {
+			
+			//eliminamos el registro
+<span class="nc" id="L186">			prestamoDao.deleteById(id);</span>
+<span class="nc" id="L187">			response.setMetadata(&quot;Respuesta ok&quot;, &quot;00&quot;, &quot;Prestamo eliminado&quot;);</span>
+			
+<span class="nc" id="L189">		} catch (Exception e) {</span>
+<span class="nc" id="L190">			log.error(&quot;Error en eliminar prestamo&quot;);</span>
+<span class="nc" id="L191">			e.getStackTrace();</span>
+<span class="nc" id="L192">			response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Prestamo no eliminado&quot;);</span>
+<span class="nc" id="L193">			return new ResponseEntity&lt;PrestamoResponseRest&gt;(response, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+		}
+<span class="nc" id="L195">		return new ResponseEntity&lt;PrestamoResponseRest&gt;(response, HttpStatus.OK); // devuelve 200</span>
+	}
+	
+    /*private void validarTipoUsuario(int tipoUsuario) {
+        if (tipoUsuario &lt; 1 || tipoUsuario &gt; 3) {
+            throw new IllegalArgumentException(&quot;Tipo de usuario no permitido en la biblioteca&quot;);
+        }
+    }
+    
+    private void verificarPrestamoExistente(String identificacionUsuario, int tipoUsuario) {
+        if (tipoUsuario == 3) { // Usuario invitado
+            Optional&lt;Prestamo&gt; prestamoExistente = prestamoDao.findByIdentificacionUsuario(identificacionUsuario);
+            if (prestamoExistente.isPresent()) {
+                throw new RuntimeException(&quot;El usuario con identificación &quot; + identificacionUsuario + &quot; ya tiene un libro prestado por lo cual no se le puede realizar otro préstamo&quot;);
+            }
+        }
+    }*/
+	
+	
+    private LocalDate calcularFechaDevolucion(int tipoUsuario) {
+<span class="nc" id="L215">        LocalDate fechaActual = LocalDate.now();</span>
+        int diasAAgregar;
+<span class="nc bnc" id="L217" title="All 4 branches missed.">        switch (tipoUsuario) {</span>
+<span class="nc" id="L218">            case 1: diasAAgregar = 10; break;</span>
+<span class="nc" id="L219">            case 2: diasAAgregar = 8; break;</span>
+<span class="nc" id="L220">            case 3: diasAAgregar = 7; break;</span>
+<span class="nc" id="L221">            default: throw new IllegalArgumentException(&quot;Tipo de usuario no permitido en la biblioteca&quot;);</span>
+        }
+<span class="nc" id="L223">        return calcularFechaDevolucionInterno(fechaActual, diasAAgregar);</span>
+    }
+    
+    public LocalDate calcularFechaDevolucionInterno(LocalDate fechaInicial, int diasAAgregar) {
+<span class="nc" id="L227">        LocalDate fechaDevolucion = fechaInicial;</span>
+<span class="nc" id="L228">        int diasAgregados = 0;</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">        while (diasAgregados &lt; diasAAgregar) {</span>
+<span class="nc" id="L230">            fechaDevolucion = fechaDevolucion.plusDays(1);</span>
+<span class="nc bnc" id="L231" title="All 4 branches missed.">            if (!(fechaDevolucion.getDayOfWeek() == DayOfWeek.SATURDAY || fechaDevolucion.getDayOfWeek() == DayOfWeek.SUNDAY)) {</span>
+<span class="nc" id="L232">                diasAgregados++;</span>
+            }
+        }
+<span class="nc" id="L235">        return fechaDevolucion;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

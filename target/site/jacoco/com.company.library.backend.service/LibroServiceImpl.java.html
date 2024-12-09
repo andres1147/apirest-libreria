@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LibroServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">apirest-libreria</a> &gt; <a href="index.source.html" class="el_package">com.company.library.backend.service</a> &gt; <span class="el_source">LibroServiceImpl.java</span></div><h1>LibroServiceImpl.java</h1><pre class="source lang-java linenums">package com.company.library.backend.service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.company.library.backend.model.Libro;
+import com.company.library.backend.model.dao.ILibroDao;
+import com.company.library.backend.response.LibroResponseRest;
+
+@Service
+<span class="fc" id="L20">public class LibroServiceImpl implements ILibroService{</span>
+	
+<span class="fc" id="L22">	private static final Logger log = LoggerFactory.getLogger(LibroServiceImpl.class);</span>
+	
+	@Autowired
+	private ILibroDao libroDao;
+
+	@Override
+	@Transactional(readOnly = true)
+	public ResponseEntity&lt;LibroResponseRest&gt; buscarLibros() {
+<span class="nc" id="L30">		log.info(&quot;inicio metodo buscarLibros()&quot;);</span>
+		
+<span class="nc" id="L32">		LibroResponseRest response = new LibroResponseRest();</span>
+		
+		try {
+			
+<span class="nc" id="L36">			List&lt;Libro&gt; libro = (List&lt;Libro&gt;) libroDao.findAll();</span>
+			
+<span class="nc" id="L38">			response.getLibroResponse().setLibro(libro);</span>
+			
+<span class="nc" id="L40">			response.setMetadata(&quot;Respuesta ok&quot;, &quot;00&quot;, &quot;Respuesta exitosa&quot;);</span>
+			
+<span class="nc" id="L42">		} catch (Exception e) {</span>
+<span class="nc" id="L43">			response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Error al consulta libros&quot;);</span>
+<span class="nc" id="L44">			log.error(&quot;error al consultar libros: &quot;, e.getMessage());</span>
+<span class="nc" id="L45">			e.getStackTrace();</span>
+<span class="nc" id="L46">			return new ResponseEntity&lt;LibroResponseRest&gt;(response, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+		}
+		
+<span class="nc" id="L49">		return new ResponseEntity&lt;LibroResponseRest&gt;(response, HttpStatus.OK); //devuelve 200</span>
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ResponseEntity&lt;LibroResponseRest&gt; buscarPorId(Long id) {
+<span class="nc" id="L55">		log.info(&quot;Inicio metodo buscarPorId)&quot;);</span>
+		
+<span class="nc" id="L57">		LibroResponseRest response = new LibroResponseRest();</span>
+<span class="nc" id="L58">		List&lt;Libro&gt; list = new ArrayList&lt;&gt;();</span>
+		
+		try {
+			
+<span class="nc" id="L62">			Optional&lt;Libro&gt; libro = libroDao.findById(id);</span>
+			
+<span class="nc bnc" id="L64" title="All 2 branches missed.">			if (libro.isPresent()) {</span>
+<span class="nc" id="L65">				list.add(libro.get());</span>
+<span class="nc" id="L66">				response.getLibroResponse().setLibro(list);</span>
+<span class="nc" id="L67">			} else {</span>
+<span class="nc" id="L68">				log.error(&quot;Error en consultar libro&quot;);</span>
+<span class="nc" id="L69">				response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Libro no encontrado&quot;);</span>
+<span class="nc" id="L70">				return new ResponseEntity&lt;LibroResponseRest&gt;(response, HttpStatus.NOT_FOUND);</span>
+			}
+			
+<span class="nc" id="L73">		} catch (Exception e) {</span>
+<span class="nc" id="L74">			log.error(&quot;Error en consultar libro&quot;);</span>
+<span class="nc" id="L75">			response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Error al consultar libro&quot;);</span>
+<span class="nc" id="L76">			return new ResponseEntity&lt;LibroResponseRest&gt;(response, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+		}
+		
+<span class="nc" id="L79">		response.setMetadata(&quot;Respuesta ok&quot;, &quot;00&quot;, &quot;Respuesta exitosa&quot;);</span>
+<span class="nc" id="L80">		return new ResponseEntity&lt;LibroResponseRest&gt;(response, HttpStatus.OK); //devuelve 200</span>
+	}
+
+	@Override
+	@Transactional
+	public ResponseEntity&lt;LibroResponseRest&gt; crear(Libro libro) {
+<span class="nc" id="L86">		log.info(&quot;Inicio metodo crear libro&quot;);</span>
+		
+<span class="nc" id="L88">		LibroResponseRest response = new LibroResponseRest();</span>
+<span class="nc" id="L89">		List&lt;Libro&gt; list = new ArrayList&lt;&gt;();</span>
+		
+		try {
+			
+<span class="nc" id="L93">			Libro libroGuardada = libroDao.save(libro);</span>
+			
+<span class="nc bnc" id="L95" title="All 2 branches missed.">			if( libroGuardada != null) {</span>
+<span class="nc" id="L96">				list.add(libroGuardada);</span>
+<span class="nc" id="L97">				response.getLibroResponse().setLibro(list);</span>
+<span class="nc" id="L98">			} else {</span>
+<span class="nc" id="L99">				log.error(&quot;Error en grabar libro&quot;);</span>
+<span class="nc" id="L100">				response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Libro no guardado&quot;);</span>
+<span class="nc" id="L101">				return new ResponseEntity&lt;LibroResponseRest&gt;(response, HttpStatus.BAD_REQUEST);</span>
+			}
+			
+<span class="nc" id="L104">		} catch( Exception e) {</span>
+<span class="nc" id="L105">			log.error(&quot;Error en grabar libro&quot;);</span>
+<span class="nc" id="L106">			response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Error al grabar libro&quot;);</span>
+<span class="nc" id="L107">			return new ResponseEntity&lt;LibroResponseRest&gt;(response, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+		}
+		
+<span class="nc" id="L110">		response.setMetadata(&quot;Respuesta ok&quot;, &quot;00&quot;, &quot;Libro creado&quot;);</span>
+<span class="nc" id="L111">		return new ResponseEntity&lt;LibroResponseRest&gt;(response, HttpStatus.OK); //devuelve 200</span>
+
+	}
+
+	@Override
+	@Transactional
+	public ResponseEntity&lt;LibroResponseRest&gt; actualizar(Libro libro, Long id) {
+<span class="nc" id="L118">		log.info(&quot;Inicio metodo actualizar&quot;);</span>
+		
+<span class="nc" id="L120">		LibroResponseRest response = new LibroResponseRest();</span>
+<span class="nc" id="L121">		List&lt;Libro&gt; list = new ArrayList&lt;&gt;();</span>
+		
+		try {
+			
+<span class="nc" id="L125">			Optional&lt;Libro&gt; libroBuscado = libroDao.findById(id);</span>
+			
+<span class="nc bnc" id="L127" title="All 2 branches missed.">			if (libroBuscado.isPresent()) {</span>
+<span class="nc" id="L128">				libroBuscado.get().setNombre(libro.getNombre());</span>
+<span class="nc" id="L129">				libroBuscado.get().setDescripcion(libro.getDescripcion());</span>
+<span class="nc" id="L130">				libroBuscado.get().setCategoria(libro.getCategoria());</span>
+				 
+<span class="nc" id="L132">				 Libro libroActualizar = libroDao.save(libroBuscado.get()); //actualizando</span>
+				 
+<span class="nc bnc" id="L134" title="All 2 branches missed.">				 if( libroActualizar != null ) {</span>
+<span class="nc" id="L135">					 response.setMetadata(&quot;Respuesta ok&quot;, &quot;00&quot;, &quot;Libro actualizado&quot;);</span>
+<span class="nc" id="L136">					 list.add(libroActualizar);</span>
+<span class="nc" id="L137">					 response.getLibroResponse().setLibro(list);</span>
+<span class="nc" id="L138">				 } else {</span>
+<span class="nc" id="L139">					 log.error(&quot;error en actualizar libro&quot;);</span>
+<span class="nc" id="L140">					 response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Libro no actualizado&quot;);</span>
+<span class="nc" id="L141">					 return new ResponseEntity&lt;LibroResponseRest&gt;(response, HttpStatus.BAD_REQUEST);</span>
+				 }
+				 
+				 
+			} else {
+<span class="nc" id="L146">				log.error(&quot;error en actualizar libro&quot;);</span>
+<span class="nc" id="L147">				response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;libro no actualizado&quot;);</span>
+<span class="nc" id="L148">				return new ResponseEntity&lt;LibroResponseRest&gt;(response, HttpStatus.NOT_FOUND);</span>
+			}
+			
+<span class="nc" id="L151">		} catch ( Exception e) {</span>
+<span class="nc" id="L152">			log.error(&quot;error en actualizar libro&quot;, e.getMessage());</span>
+<span class="nc" id="L153">			e.getStackTrace();</span>
+<span class="nc" id="L154">			response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Libro no actualizado&quot;);</span>
+<span class="nc" id="L155">			return new ResponseEntity&lt;LibroResponseRest&gt;(response, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+		}
+		
+<span class="nc" id="L158">		return new ResponseEntity&lt;LibroResponseRest&gt;(response, HttpStatus.OK);</span>
+
+	}
+
+	@Override
+	@Transactional
+	public ResponseEntity&lt;LibroResponseRest&gt; eliminar(Long id) {
+<span class="nc" id="L165">		log.info(&quot;Inicio metodo eliminar libro&quot;);</span>
+		
+<span class="nc" id="L167">		LibroResponseRest response = new LibroResponseRest();</span>
+		
+		 try {
+			 
+			 //eliminamos el registro
+<span class="nc" id="L172">			 libroDao.deleteById(id);</span>
+<span class="nc" id="L173">			 response.setMetadata(&quot;Respuesta ok&quot;, &quot;00&quot;, &quot;Libro eliminado&quot;);</span>
+			 
+<span class="nc" id="L175">		 } catch (Exception e) {</span>
+<span class="nc" id="L176">			log.error(&quot;error en eliminar libro&quot;, e.getMessage());</span>
+<span class="nc" id="L177">			e.getStackTrace();</span>
+<span class="nc" id="L178">			response.setMetadata(&quot;Respuesta nok&quot;, &quot;-1&quot;, &quot;Libro no eliminado&quot;);</span>
+<span class="nc" id="L179">			return new ResponseEntity&lt;LibroResponseRest&gt;(response, HttpStatus.INTERNAL_SERVER_ERROR); </span>
+		 }
+		 
+<span class="nc" id="L182">		 return new ResponseEntity&lt;LibroResponseRest&gt;(response, HttpStatus.OK);</span>
+
+	}
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

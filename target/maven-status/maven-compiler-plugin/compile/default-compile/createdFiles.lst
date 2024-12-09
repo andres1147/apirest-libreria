@@ -1,0 +1,9 @@
+com\company\library\backend\ApirestLibreriaApplication.class
+com\company\library\backend\response\CategoriaResponse.class
+com\company\library\backend\service\CategoriaServiceImpl.class
+com\company\library\backend\model\Categoria.class
+com\company\library\backend\controller\CategoriaRestController.class
+com\company\library\backend\response\ResponseRest.class
+com\company\library\backend\response\CategoriaResponseRest.class
+com\company\library\backend\model\dao\ICategoriaDao.class
+com\company\library\backend\service\ICategoriaService.class
